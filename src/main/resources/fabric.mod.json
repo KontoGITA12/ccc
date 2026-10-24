@@ -1,0 +1,23 @@
+{
+	"schemaVersion": 1,
+	"id": "visualtarget",
+	"version": "${version}",
+	"name": "Visual Target",
+	"description": "Klawisz otwiera menu Visuals. Gdy celujesz w gracza lub moba, wokol niego pojawiaja sie efekty wizualne.",
+	"authors": [
+		"Ty"
+	],
+	"license": "MIT",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.visualtarget.VisualTargetClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"minecraft": "~1.21.4",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
