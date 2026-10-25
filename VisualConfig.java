@@ -15,40 +15,47 @@ import java.nio.file.Path;
  * Ustawienia moda. Zapisywane w config/visualtarget.json.
  */
 public class VisualConfig {
-	// --- Efekty ---
-	public boolean enabled = true;
+	// --- Motyw i wyglad menu ---
+	public int theme = 1;                // 0 = Black, 1 = Purple-Pink, 2 = Dark Purple
+	public float panelAlpha = 0.9f;      // przezroczystosc panelu menu
+	public boolean rounded = true;       // zaokraglone rogi menu
+	public boolean animateColors = true; // gradient kolorow plynie w czasie
+
+	// --- Efekty wokol celu ---
+	public boolean targetEnabled = true;
 	public boolean box = true;
 	public boolean ring = true;
 	public boolean scanner = false;
 	public boolean orbit = false;
-	public boolean ghost = true;   // wiatr krazacy wokol celu
-
-	// --- Opcje ---
-	public boolean glow = true;    // miekka poswiata na liniach
+	public boolean ghost = true;         // wiatr krazacy wokol celu
+	public boolean glow = true;          // miekka poswiata na liniach
 	public boolean playersOnly = false;
 	public float range = 24f;
-
-	// --- Wyglad ---
-	public boolean rainbow = false;
-	public float colorPos = 0.62f; // pozycja na suwaku koloru (0 = biel, potem cala teczka)
 	public float speed = 1f;
 
-	// -------------------------------------------------------------
+	// --- Dodatki ---
+	public boolean jumpCircle = true;
+	public boolean trails = false;
+	public boolean blizzard = false;
+	public boolean fireflies = false;
+	public float trailSeconds = 1.5f;
+	public float blizzardDensity = 1f;
+	public float fireflyCount = 24f;
+	public boolean rain = false;
+	public float rainDensity = 1f;
 
-	/** Zamienia pozycje na suwaku (0..1) na kolor RGB. Poczatek suwaka to biel. */
-	public static int colorFromPos(float v) {
-		if (v < 0.06f) return 0xFFFFFF;
-		float hue = (v - 0.06f) / 0.94f * 0.95f;
-		return MathHelper.hsvToRgb(hue, 0.85f, 1.0f) & 0xFFFFFF;
-	}
+	// --- Niebo: 0 = wylaczone, 1 = Aurora, 2 = Nebula, 3 = Galaxy, 4 = Caustics, 5 = Black hole ---
+	public int sky = 0;
+	public float skyIntensity = 0.85f;
+	public float skySpeed = 1f;
 
-	/** Kolor do pokazania w menu (w trybie rainbow zmienia sie w czasie). */
-	public int displayRgb() {
-		if (rainbow) {
-			float hue = (System.currentTimeMillis() % 5000L) / 5000f;
-			return MathHelper.hsvToRgb(hue, 0.85f, 1.0f) & 0xFFFFFF;
-		}
-		return colorFromPos(colorPos);
+	// --- Pety: 0 = Bat, 1 = Cat, 2 = Chicken, 3 = Dog ---
+	public boolean petEnabled = false;
+	public int petType = 1;
+	public float petScale = 1f;
+
+	public Theme theme() {
+		return Theme.byIndex(theme);
 	}
 
 	// -------------------------------------------------------------
@@ -91,8 +98,18 @@ public class VisualConfig {
 	}
 
 	private void clamp() {
-		colorPos = MathHelper.clamp(colorPos, 0f, 1f);
+		theme = MathHelper.clamp(theme, 0, Theme.values().length - 1);
+		panelAlpha = MathHelper.clamp(panelAlpha, 0.35f, 1f);
 		range = MathHelper.clamp(range, 4f, 64f);
 		speed = MathHelper.clamp(speed, 0.2f, 3f);
+		trailSeconds = MathHelper.clamp(trailSeconds, 0.5f, 3f);
+		blizzardDensity = MathHelper.clamp(blizzardDensity, 0.3f, 2f);
+		fireflyCount = MathHelper.clamp(fireflyCount, 4f, 80f);
+		rainDensity = MathHelper.clamp(rainDensity, 0.3f, 2f);
+		sky = MathHelper.clamp(sky, 0, 5);
+		skyIntensity = MathHelper.clamp(skyIntensity, 0.2f, 1f);
+		skySpeed = MathHelper.clamp(skySpeed, 0.2f, 3f);
+		petType = MathHelper.clamp(petType, 0, 3);
+		petScale = MathHelper.clamp(petScale, 0.6f, 2f);
 	}
 }

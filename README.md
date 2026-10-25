@@ -4,9 +4,9 @@ Mod kliencki. Klawisz (domyslnie **Prawy Shift**) otwiera menu. Klawisz zmienisz
 Ustawienia zapisuja sie w `config/visualtarget.json`.
 
 ## Zakladki menu
-- **Themes** - motywy: Black, Purple-Pink, Dark Purple; przezroczystosc panelu, zaokraglone rogi, animowane kolory
+- **Themes** - 9 motywow: Black, Purple-Pink, Dark Purple, Blue, Red, Green, Ice, Orange, Gold; przezroczystosc panelu, zaokraglone rogi, animowane kolory
 - **Target** - efekty wokol moba/gracza, w ktorego celujesz: Box, Ring, Scanner, Orbit, Ghost (wiatr), Glow; zasieg, predkosc, wszyscy / tylko gracze
-- **Extras** - Jump circle, Trails, Blizzard, Fireflies
+- **Extras** - Jump circle (fala uderzeniowa i kurz), Trails (gladka wstega), Blizzard (miekki snieg z porywami), Fireflies (swietliki, mocniej swieca w nocy), Rain (deszcz; mokre sa tylko bloki, po ktorych chodzisz, a skok robi chlapniecie)
 - **Sky** - Aurora, Nebula, Galaxy, Caustics, Black hole (tylko Overworld); intensywnosc i predkosc
 - **Pets** - Bat, Cat, Chicken, Dog chodza lub lataja wokol Ciebie; rozmiar
 
