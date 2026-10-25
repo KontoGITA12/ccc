@@ -1,27 +1,19 @@
 # Visual Target (Fabric 1.21.4)
 
-Mod kliencki. Klawisz (domyslnie **Prawy Shift**) otwiera menu **Visuals**.
-Gdy celownikiem najedziesz na gracza lub moba, wokol niego pojawiaja sie efekty
-(pojawiaja sie i znikaja plynnie).
-
-## Menu Visuals
-**Effects**
-- **Box** - obrys hitboxa
-- **Ring** - pulsujacy pierscien pod nogami + obracajace sie znaczniki
-- **Scanner** - pierscien jezdzacy w gore i w dol (z ogonem)
-- **Orbit** - swiecace punkty krazace wokol celu (z ogonami)
-- **Ghost (wind)** - wiatr: smugi spiralnie wznoszace sie wokol celu
-
-**Color** - jeden suwak: biel na poczatku, potem cala teczka. **Rainbow** zmienia kolory w czasie.
-
-**Settings** - Range (zasieg), Speed (predkosc animacji), cele: wszyscy / tylko gracze.
-**Options** - Glow (miekka poswiata na liniach).
-
+Mod kliencki. Klawisz (domyslnie **Prawy Shift**) otwiera menu. Klawisz zmienisz w Opcje > Sterowanie > Visual Target.
 Ustawienia zapisuja sie w `config/visualtarget.json`.
-Klawisz zmienisz w *Opcje > Sterowanie > Visual Target*.
+
+## Zakladki menu
+- **Themes** - motywy: Black, Purple-Pink, Dark Purple; przezroczystosc panelu, zaokraglone rogi, animowane kolory
+- **Target** - efekty wokol moba/gracza, w ktorego celujesz: Box, Ring, Scanner, Orbit, Ghost (wiatr), Glow; zasieg, predkosc, wszyscy / tylko gracze
+- **Extras** - Jump circle, Trails, Blizzard, Fireflies
+- **Sky** - Aurora, Nebula, Galaxy, Caustics, Black hole (tylko Overworld); intensywnosc i predkosc
+- **Pets** - Bat, Cat, Chicken, Dog chodza lub lataja wokol Ciebie; rozmiar
+
+Kolory wszystkiego (menu, efekty, niebo, obroze petow) pochodza z wybranego motywu.
 
 ## Jak zbudowac
-Najlatwiej przez GitHub Actions (plik `.github/workflows/build.yml`): wrzuc projekt do repo,
+Najlatwiej przez GitHub Actions (`.github/workflows/build.yml`): wrzuc projekt do repo,
 w zakladce Actions poczekaj na zielony ptaszek i pobierz artefakt `visualtarget-mod`.
 
 Albo lokalnie: JDK 21 + IntelliJ, panel Gradle > Tasks > build > build.
@@ -31,5 +23,6 @@ Do folderu `mods` wrzuc tez **Fabric API** (1.21.4).
 ## Struktura
 - `VisualTargetClient.java` - start moda, klawisz
 - `VisualsScreen.java` - menu (rysowane recznie)
-- `TargetRenderer.java` - wykrywanie celu i rysowanie efektow
-- `VisualConfig.java` - zapis i odczyt ustawien
+- `Theme.java`, `VisualConfig.java` - motywy i zapis ustawien
+- `Painter.java`, `TargetRenderer.java`, `ExtrasRenderer.java` - efekty w swiecie
+- `SkyRenderer.java` - niebo, `PetRenderer.java` - pety

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Punkt startowy moda (tylko klient).
- * Rejestruje klawisz otwierajacy menu i renderer efektow.
+ * Rejestruje klawisz otwierajacy menu i renderery efektow.
  */
 public class VisualTargetClient implements ClientModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("visualtarget");
@@ -39,7 +39,10 @@ public class VisualTargetClient implements ClientModInitializer {
 			}
 		});
 
+		SkyRenderer.register();
 		TargetRenderer.register();
+		ExtrasRenderer.register();
+		PetRenderer.register();
 		LOGGER.info("Visual Target zaladowany");
 	}
 }
