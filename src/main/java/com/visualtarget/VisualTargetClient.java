@@ -42,6 +42,7 @@ public class VisualTargetClient implements ClientModInitializer {
 		SkyRenderer.register();
 		TargetRenderer.register();
 		ExtrasRenderer.register();
+		RainRenderer.register();
 		PetRenderer.register();
 		LOGGER.info("Visual Target zaladowany");
 	}

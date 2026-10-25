@@ -21,7 +21,7 @@ import java.util.function.IntSupplier;
  */
 public class VisualsScreen extends Screen {
 	private static final int W = 420;
-	private static final int H = 240;
+	private static final int H = 254;
 	private static final int SIDE_W = 104;
 
 	private static final int COL_TEXT = 0xFFEDEDF5;
@@ -115,13 +115,14 @@ public class VisualsScreen extends Screen {
 
 	private void buildThemes() {
 		int cardW = (cw - 16) / 3;
-		for (int i = 0; i < 3; i++) {
-			items.add(new ThemeCard(cx + i * (cardW + 8), py + 56, cardW, 52, i));
+		int count = Theme.values().length;
+		for (int i = 0; i < count; i++) {
+			items.add(new ThemeCard(cx + (i % 3) * (cardW + 8), py + 54 + (i / 3) * 40, cardW, 34, i));
 		}
-		items.add(new Slider(cx, py + 122, cw, 24, "Panel opacity", 0.35, 1.0, 2, 100.0, 0, "%",
+		items.add(new Slider(cx, py + 176, cw, 24, "Panel opacity", 0.35, 1.0, 2, 100.0, 0, "%",
 				() -> cfg.panelAlpha, v -> cfg.panelAlpha = (float) v));
-		items.add(new Toggle(cx, py + 152, cw, 20, "Rounded corners", () -> cfg.rounded, v -> cfg.rounded = v));
-		items.add(new Toggle(cx, py + 174, cw, 20, "Animate colors", () -> cfg.animateColors, v -> cfg.animateColors = v));
+		items.add(new Toggle(cx, py + 202, cw, 20, "Rounded corners", () -> cfg.rounded, v -> cfg.rounded = v));
+		items.add(new Toggle(cx, py + 224, cw, 20, "Animate colors", () -> cfg.animateColors, v -> cfg.animateColors = v));
 	}
 
 	private void buildTarget() {
@@ -163,6 +164,8 @@ public class VisualsScreen extends Screen {
 		items.add(new Toggle(lx, y, colW, 20, "Blizzard", () -> cfg.blizzard, v -> cfg.blizzard = v));
 		y += 22;
 		items.add(new Toggle(lx, y, colW, 20, "Fireflies", () -> cfg.fireflies, v -> cfg.fireflies = v));
+		y += 22;
+		items.add(new Toggle(lx, y, colW, 20, "Rain", () -> cfg.rain, v -> cfg.rain = v));
 
 		items.add(new Slider(rx, py + 54, colW, 24, "Trail length", 0.5, 3.0, 1, 1.0, 1, "s",
 				() -> cfg.trailSeconds, v -> cfg.trailSeconds = (float) v));
@@ -170,6 +173,8 @@ public class VisualsScreen extends Screen {
 				() -> cfg.blizzardDensity, v -> cfg.blizzardDensity = (float) v));
 		items.add(new Slider(rx, py + 110, colW, 24, "Fireflies", 4, 80, 0, 1.0, 0, "",
 				() -> cfg.fireflyCount, v -> cfg.fireflyCount = (float) v));
+		items.add(new Slider(rx, py + 138, colW, 24, "Rain density", 0.3, 2.0, 1, 1.0, 1, "x",
+				() -> cfg.rainDensity, v -> cfg.rainDensity = (float) v));
 	}
 
 	// ------------------------------------------------------------------
@@ -391,15 +396,14 @@ public class VisualsScreen extends Screen {
 			rrect(ctx, x, y, w, h, hit(mx, my) ? 0xFF22222E : 0xFF171720, rad(4));
 
 			// gradient w pastylce
-			int sx = x + 6;
-			int sy = y + 6;
-			int sw = w - 12;
-			int sh = 16;
+			int sx = x + 5;
+			int sy = y + 5;
+			int sw = w - 10;
+			int sh = 10;
 			for (int i = 0; i < sw; i++) {
 				ctx.fill(sx + i, sy, sx + i + 1, sy + sh, 0xFF000000 | th.uiLinear(i / (double) (sw - 1)));
 			}
-			text(ctx, th.label, x + 6, y + 27, COL_TEXT);
-			text(ctx, sel ? "Active" : "Click to select", x + 6, y + 39, sel ? 0xFF000000 | th.uiA : COL_DIM);
+			text(ctx, th.label, x + 5, y + 20, sel ? COL_TEXT : COL_OFF);
 		}
 
 		@Override

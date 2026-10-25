@@ -41,6 +41,8 @@ public class VisualConfig {
 	public float trailSeconds = 1.5f;
 	public float blizzardDensity = 1f;
 	public float fireflyCount = 24f;
+	public boolean rain = false;
+	public float rainDensity = 1f;
 
 	// --- Niebo: 0 = wylaczone, 1 = Aurora, 2 = Nebula, 3 = Galaxy, 4 = Caustics, 5 = Black hole ---
 	public int sky = 0;
@@ -103,6 +105,7 @@ public class VisualConfig {
 		trailSeconds = MathHelper.clamp(trailSeconds, 0.5f, 3f);
 		blizzardDensity = MathHelper.clamp(blizzardDensity, 0.3f, 2f);
 		fireflyCount = MathHelper.clamp(fireflyCount, 4f, 80f);
+		rainDensity = MathHelper.clamp(rainDensity, 0.3f, 2f);
 		sky = MathHelper.clamp(sky, 0, 5);
 		skyIntensity = MathHelper.clamp(skyIntensity, 0.2f, 1f);
 		skySpeed = MathHelper.clamp(skySpeed, 0.2f, 3f);
