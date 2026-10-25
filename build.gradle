@@ -1,6 +1,5 @@
 plugins {
 	id 'fabric-loom' version '1.9-SNAPSHOT'
-	id 'maven-publish'
 }
 
 version = project.mod_version
@@ -22,7 +21,6 @@ dependencies {
 
 processResources {
 	inputs.property "version", project.version
-
 	filesMatching("fabric.mod.json") {
 		expand "version": inputs.properties.version
 	}
@@ -30,11 +28,10 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.release = 21
-	it.options.encoding = "UTF-8"
+	it.options.encoding = 'UTF-8'
 }
 
 java {
-	withSourcesJar()
 	sourceCompatibility = JavaVersion.VERSION_21
 	targetCompatibility = JavaVersion.VERSION_21
 }

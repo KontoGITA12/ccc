@@ -1,18 +1,15 @@
 {
 	"schemaVersion": 1,
-	"id": "visualtarget",
+	"id": "ghostvisual",
 	"version": "${version}",
-	"name": "Visual Target",
-	"description": "Klawisz otwiera menu Visuals. Gdy celujesz w gracza lub moba, wokol niego pojawiaja sie efekty wizualne.",
-	"authors": [
-		"Ty"
-	],
+	"name": "GhostVisual",
+	"description": "Efekty wizualne celu, pety, China Hat i panel muzyki. Made by shvga.",
+	"authors": ["shvga"],
 	"license": "MIT",
+	"icon": "assets/ghostvisual/textures/gui/logo.png",
 	"environment": "client",
 	"entrypoints": {
-		"client": [
-			"com.visualtarget.VisualTargetClient"
-		]
+		"client": ["com.ghostvisual.GhostVisualClient"]
 	},
 	"depends": {
 		"fabricloader": ">=0.16.10",

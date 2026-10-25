@@ -1,28 +1,18 @@
-# Visual Target (Fabric 1.21.4)
+# GhostVisual (made by shvga)
 
-Mod kliencki. Klawisz (domyslnie **Prawy Shift**) otwiera menu. Klawisz zmienisz w Opcje > Sterowanie > Visual Target.
-Ustawienia zapisuja sie w `config/visualtarget.json`.
+Mod kliencki Fabric dla Minecrafta 1.21.4 (Java 21, Fabric API).
 
-## Zakladki menu
-- **Themes** - 9 motywow: Black, Purple-Pink, Dark Purple, Blue, Red, Green, Ice, Orange, Gold; przezroczystosc panelu, zaokraglone rogi, animowane kolory
-- **Target** - efekty wokol moba/gracza, w ktorego celujesz: Box, Ring, Scanner, Orbit, Ghost (wiatr), Glow; zasieg, predkosc, wszyscy / tylko gracze
-- **Extras** - Jump circle (fala uderzeniowa i kurz), Trails (gladka wstega), Blizzard (miekki snieg z porywami), Fireflies (swietliki, mocniej swieca w nocy), Rain (deszcz; mokre sa tylko bloki, po ktorych chodzisz, a skok robi chlapniecie)
-- **Sky** - Aurora, Nebula, Galaxy, Caustics, Black hole (tylko Overworld); intensywnosc i predkosc
-- **Pets** - Bat, Cat, Chicken, Dog chodza lub lataja wokol Ciebie; rozmiar
+## Jak zbudować jara (GitHub)
+1. Wrzuć całą zawartość tego folderu do repozytorium na GitHubie (razem z folderem `.github`).
+2. Wejdź w zakładkę **Actions**, otworzy się workflow **build** (uruchamia się sam po pushu, albo kliknij *Run workflow*).
+3. Po zakończeniu otwórz przebieg i pobierz artefakt **GhostVisual**. W środku jest `ghostvisual-1.1.0.jar`.
+4. Wrzuć jara do `.minecraft/mods` razem z Fabric API.
 
-Kolory wszystkiego (menu, efekty, niebo, obroze petow) pochodza z wybranego motywu.
+Lokalnie: `gradle build` (Gradle 8.12, Java 21), jar ląduje w `build/libs`.
 
-## Jak zbudowac
-Najlatwiej przez GitHub Actions (`.github/workflows/build.yml`): wrzuc projekt do repo,
-w zakladce Actions poczekaj na zielony ptaszek i pobierz artefakt `visualtarget-mod`.
+## Klawisze
+- Prawy Shift: menu GhostVisual (zmienisz w Sterowaniu).
+- Klawisze muzyki (poprzedni / pauza / dalej) ustawisz w Sterowaniu, kategoria GhostVisual.
 
-Albo lokalnie: JDK 21 + IntelliJ, panel Gradle > Tasks > build > build.
-Gotowy plik: `build/libs/visualtarget-1.0.0.jar` (nie ten z `-sources`).
-Do folderu `mods` wrzuc tez **Fabric API** (1.21.4).
-
-## Struktura
-- `VisualTargetClient.java` - start moda, klawisz
-- `VisualsScreen.java` - menu (rysowane recznie)
-- `Theme.java`, `VisualConfig.java` - motywy i zapis ustawien
-- `Painter.java`, `TargetRenderer.java`, `ExtrasRenderer.java` - efekty w swiecie
-- `SkyRenderer.java` - niebo, `PetRenderer.java` - pety
+## Muzyka
+Panel czyta systemowy odtwarzacz Windows (Spotify itp.). Działa tylko na Windows.
