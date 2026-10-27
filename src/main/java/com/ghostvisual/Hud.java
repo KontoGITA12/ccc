@@ -19,6 +19,7 @@ public final class Hud {
 		if (!mc.options.hudHidden) {
 			targetPanel(c, mc, cfg, tick.getTickDelta(false));
 			MusicPanel.render(c, mc);
+			infoPill(c, mc, cfg);
 		}
 	}
 
@@ -42,5 +43,29 @@ public final class Hud {
 		float hp = Math.max(0f, Math.min(1f, e.getHealth() / Math.max(1f, e.getMaxHealth())));
 		c.fill(x + 8, y + 17, x + w - 8, y + 20, Gfx.argb(0xFFFFFF, 0.15f * f));
 		c.fill(x + 8, y + 17, x + 8 + Math.round((w - 16) * hp), y + 20, Gfx.argb(accent, f));
+	}
+
+	/** Mala pigulka z logo, nickiem, pingiem i FPS (biala ramka). */
+	private static void infoPill(DrawContext c, MinecraftClient mc, Config cfg) {
+		if (!cfg.infoPill) {
+			return;
+		}
+		String name = mc.getSession() != null ? mc.getSession().getUsername() : mc.player.getName().getString();
+		int ping = 0;
+		if (mc.getNetworkHandler() != null) {
+			var entry = mc.getNetworkHandler().getPlayerListEntry(mc.player.getUuid());
+			if (entry != null) {
+				ping = entry.getLatency();
+			}
+		}
+		String text = name + "  " + ping + " ms  " + mc.getCurrentFps() + " fps";
+		int h = 20;
+		int w = 30 + Gfx.width(text) + 10;
+		int x = c.getScaledWindowWidth() / 2 - w / 2;
+		int y = 6;
+		Gfx.roundRect(c, x, y, w, h, 10, Gfx.argb(0x000000, 0.7f));
+		Gfx.roundBorder(c, x, y, w, h, 10, 0xFFFFFFFF);
+		Gfx.image(c, Gfx.LOGO, x + 7, y + 3, 14, 128);
+		Gfx.text(c, text, x + 27, y + 6, 0xFFFFFFFF);
 	}
 }

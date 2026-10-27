@@ -43,12 +43,6 @@ public final class Overlay {
 		double t = now / 1.0e9;
 		Theme th = cfg.theme();
 
-		if (cfg.sky) {
-			float phase = (float) (0.5 + 0.5 * Math.sin(t * (0.2 + cfg.skySpeed * 1.5)));
-			int col = Gfx.lerp(th.accent, th.accent2, phase);
-			c.fillGradient(0, 0, w, (int) (h * 0.45f), Gfx.argb(col, 0.38f * cfg.skyIntensity), Gfx.argb(col, 0f));
-		}
-
 		if (cfg.rain) {
 			int n = (int) (30 + cfg.rainDensity * (N - 30));
 			for (int i = 0; i < n; i++) {

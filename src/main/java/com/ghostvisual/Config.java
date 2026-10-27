@@ -37,9 +37,28 @@ public class Config {
 	public float blizzardDensity = 0.5f;
 	public boolean fireflies = false;
 	public float fireflyCount = 0.5f;
-	public boolean sky = false;
-	public float skyIntensity = 0.5f;
-	public float skySpeed = 0.5f;
+	// niebo: 0 = domyslne, 1 aurora, 2 mglawica, 3 zmierzch, 4 fiolet, 5 szare
+	public int skyStyle = 0;
+
+	// xray (kosci): 0 wylaczony, 1 tylko ja, 2 inni, 3 wszyscy
+	public int xray = 0;
+	public float xrayAlpha = 0.85f;
+	public float xrayRange = 32f;
+
+	// glass (przezroczystosc)
+	public boolean glassSelf = false;
+	public boolean glassPlayers = false;
+	public boolean glassItems = false;
+	public float glassAlpha = 0.3f;
+
+	// walka: shockwave 0 wylaczony, 1 po trafieniu, 2 po zabiciu, 3 oba
+	public int shockwave = 0;
+	public boolean killPlayersOnly = true;
+	public boolean killClub = false;
+	public boolean killLightning = false;
+
+	// panel z FPS i pingiem
+	public boolean infoPill = true;
 
 	// pety
 	public boolean petEnabled = false;
@@ -106,8 +125,12 @@ public class Config {
 		rainDensity = c(rainDensity, 0f, 1f);
 		blizzardDensity = c(blizzardDensity, 0f, 1f);
 		fireflyCount = c(fireflyCount, 0f, 1f);
-		skyIntensity = c(skyIntensity, 0f, 1f);
-		skySpeed = c(skySpeed, 0f, 1f);
+		skyStyle = Math.max(0, Math.min(5, skyStyle));
+		xray = Math.max(0, Math.min(3, xray));
+		xrayAlpha = c(xrayAlpha, 0.2f, 1f);
+		xrayRange = c(xrayRange, 8f, 64f);
+		glassAlpha = c(glassAlpha, 0.05f, 0.9f);
+		shockwave = Math.max(0, Math.min(3, shockwave));
 		petType = Math.max(0, Math.min(PetManager.NAMES.length - 1, petType));
 		petScale = c(petScale, 0.4f, 2f);
 		chinaHat = Math.max(0, Math.min(2, chinaHat));
@@ -128,7 +151,12 @@ public class Config {
 		if (rain) n++;
 		if (blizzard) n++;
 		if (fireflies) n++;
-		if (sky) n++;
+		if (skyStyle != 0) n++;
+		if (xray != 0) n++;
+		if (glassSelf || glassPlayers || glassItems) n++;
+		if (shockwave != 0) n++;
+		if (killClub) n++;
+		if (killLightning) n++;
 		if (petEnabled) n++;
 		if (chinaHat != 0) n++;
 		return n;

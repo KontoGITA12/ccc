@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 /** Menu GhostVisual: pasek boczny z zakladkami i zawartosc po prawej. */
 public class MenuScreen extends Screen {
 	public static final String VERSION = "1.1.0";
-	private static final String[] TABS = {"Cel", "Efekty", "Pety", "China Hat", "Muzyka", "Motywy", "Ustawienia", "Profil"};
+	private static final String[] TABS = {"Cel", "Efekty", "Xray", "Glass", "Walka", "Pety", "China Hat", "Muzyka", "Motywy", "Ustawienia", "Profil"};
 	private static final int SIDE = 130;
 	private static int lastTab = 0;
 
@@ -60,12 +60,16 @@ public class MenuScreen extends Screen {
 
 	// ------------------------------------------------------------ zakladki
 
+	private void sky(List<Row> rows, Config c, String label, int id) {
+		rows.add(new Toggle(label, () -> c.skyStyle == id, v -> c.skyStyle = v ? id : 0));
+	}
+
 	private void buildRows() {
 		rows.clear();
 		scroll = 0;
 		Config c = Config.get();
-		switch (tab) {
-			case 0 -> {
+		switch (TABS[tab]) {
+			case "Cel" -> {
 				rows.add(new Toggle("Efekty celu", () -> c.targetEnabled, v -> c.targetEnabled = v));
 				rows.add(new Toggle("Tylko gracze", () -> c.playersOnly, v -> c.playersOnly = v));
 				rows.add(new Slider("Zasięg", 3, 64, () -> c.range, v -> c.range = (float) v, "%.0f m"));
@@ -77,7 +81,13 @@ public class MenuScreen extends Screen {
 				rows.add(new Toggle("Ramka (box)", () -> c.box, v -> c.box = v));
 				rows.add(new Toggle("Panel celu (nick i HP)", () -> c.targetPanel, v -> c.targetPanel = v));
 			}
-			case 1 -> {
+			case "Efekty" -> {
+				sky(rows, c, "Niebo: Aurora", 1);
+				sky(rows, c, "Niebo: Mgławica", 2);
+				sky(rows, c, "Niebo: Zmierzch", 3);
+				sky(rows, c, "Niebo: Fiolet", 4);
+				sky(rows, c, "Niebo: Szare", 5);
+				rows.add(new Info(2, () -> "Włączone niebo zastępuje niebo z texture packa lub domyślne. Naraz działa tylko jedno."));
 				rows.add(new Toggle("Okrąg przy skoku", () -> c.jumpCircle, v -> c.jumpCircle = v));
 				rows.add(new Toggle("Ślady za Tobą", () -> c.trails, v -> c.trails = v));
 				rows.add(new Slider("Czas śladów", 0.5, 6, () -> c.trailSeconds, v -> c.trailSeconds = (float) v, "%.1f s"));
@@ -87,24 +97,41 @@ public class MenuScreen extends Screen {
 				rows.add(new Slider("Gęstość zamieci", 0, 1, () -> c.blizzardDensity, v -> c.blizzardDensity = (float) v, "%.0f%%", 100));
 				rows.add(new Toggle("Świetliki", () -> c.fireflies, v -> c.fireflies = v));
 				rows.add(new Slider("Ilość świetlików", 0, 1, () -> c.fireflyCount, v -> c.fireflyCount = (float) v, "%.0f%%", 100));
-				rows.add(new Toggle("Kolorowe niebo", () -> c.sky, v -> c.sky = v));
-				rows.add(new Slider("Intensywność nieba", 0, 1, () -> c.skyIntensity, v -> c.skyIntensity = (float) v, "%.0f%%", 100));
-				rows.add(new Slider("Prędkość nieba", 0, 1, () -> c.skySpeed, v -> c.skySpeed = (float) v, "%.0f%%", 100));
 			}
-			case 2 -> {
+			case "Xray" -> {
+				rows.add(new Choice("Xray (kości)", new String[]{"Wyłączony", "Tylko ja", "Inni gracze", "Wszyscy"}, () -> c.xray, v -> c.xray = v));
+				rows.add(new Slider("Jasność", 0.2, 1, () -> c.xrayAlpha, v -> c.xrayAlpha = (float) v, "%.0f%%", 100));
+				rows.add(new Slider("Zasięg", 8, 64, () -> c.xrayRange, v -> c.xrayRange = (float) v, "%.0f m"));
+				rows.add(new Info(2, () -> "Świecący szkielet widoczny przez model gracza i przez ściany. Na sobie widać go w widoku z trzeciej osoby."));
+			}
+			case "Glass" -> {
+				rows.add(new Toggle("Na mnie", () -> c.glassSelf, v -> c.glassSelf = v));
+				rows.add(new Toggle("Na innych graczach", () -> c.glassPlayers, v -> c.glassPlayers = v));
+				rows.add(new Toggle("Na itemach na ziemi", () -> c.glassItems, v -> c.glassItems = v));
+				rows.add(new Slider("Widoczność", 0.05, 0.9, () -> c.glassAlpha, v -> c.glassAlpha = (float) v, "%.0f%%", 100));
+				rows.add(new Info(2, () -> "Przezroczystość skóry gracza i itemów. Pancerz i trzymane przedmioty zostają widoczne."));
+			}
+			case "Walka" -> {
+				rows.add(new Choice("Shockwave", new String[]{"Wyłączony", "Po trafieniu", "Po zabiciu", "Oba"}, () -> c.shockwave, v -> c.shockwave = v));
+				rows.add(new Toggle("Tylko gdy zabijesz gracza", () -> c.killPlayersOnly, v -> c.killPlayersOnly = v));
+				rows.add(new Toggle("Palka po zabiciu", () -> c.killClub, v -> c.killClub = v));
+				rows.add(new Toggle("Piorun po zabiciu", () -> c.killLightning, v -> c.killLightning = v));
+				rows.add(new Info(2, () -> "Efekty są tylko wizualne i widzisz je tylko Ty. Nie wpływają na gracza ani serwer."));
+			}
+			case "Pety" -> {
 				rows.add(new Toggle("Pet włączony", () -> c.petEnabled, v -> c.petEnabled = v));
 				rows.add(new Choice("Rodzaj peta", PetManager.NAMES, () -> c.petType, v -> c.petType = v));
 				rows.add(new Slider("Rozmiar", 0.4, 2, () -> c.petScale, v -> c.petScale = (float) v, "%.1fx"));
 				rows.add(new Info(2, () -> "Pety to zwykłe moby z Minecrafta. Widzisz je tylko Ty, nie istnieją na serwerze. "
 					+ "Chodzące idą za Tobą, latające (papuga, nietoperz, allay, pszczoła) unoszą się przy głowie."));
 			}
-			case 3 -> {
+			case "China Hat" -> {
 				rows.add(new Choice("China Hat", new String[]{"Wyłączony", "Tylko ja", "Wszyscy"}, () -> c.chinaHat, v -> c.chinaHat = v));
 				rows.add(new Slider("Rozmiar kapelusza", 0.5, 2, () -> c.chinaHatScale, v -> c.chinaHatScale = (float) v, "%.1fx"));
 				rows.add(new Info(3, () -> "Tylko ja: kapelusz jest widoczny tylko na Tobie (w widoku z trzeciej osoby). "
-					+ "Wszyscy: kapelusz pojawia się na każdym graczu wokół Ciebie. Nie zależy już od tego, w kogo celujesz."));
+					+ "Wszyscy: kapelusz pojawia się na każdym graczu wokół Ciebie."));
 			}
-			case 4 -> {
+			case "Muzyka" -> {
 				rows.add(new Toggle("Panel muzyki", () -> c.musicPanel, v -> {
 					c.musicPanel = v;
 					MediaControl.sync(v);
@@ -118,16 +145,16 @@ public class MenuScreen extends Screen {
 						: "Nic nie gra. Włącz Spotify albo inny odtwarzacz, a panel pojawi się w lewym górnym rogu.";
 				}));
 				rows.add(new Info(3, () -> "Panel zostaje na ekranie także przy otwartym czacie (T). "
-					+ "Na czacie klikasz przyciski wstecz / pauza / dalej oraz pasek, żeby przewijać utwór. "
-					+ "Klawisze ustawisz w Sterowaniu (kategoria GhostVisual)."));
+					+ "Na czacie klikasz przyciski wstecz / pauza / dalej oraz pasek, żeby przewijać utwór."));
 			}
-			case 5 -> {
+			case "Motywy" -> {
 				rows.add(new ThemeGrid());
 				rows.add(new Toggle("Animowane kolory", () -> c.animateColors, v -> c.animateColors = v));
 			}
-			case 6 -> {
+			case "Ustawienia" -> {
 				rows.add(new Slider("Przezroczystość paneli", 0.3, 1, () -> c.panelAlpha, v -> c.panelAlpha = (float) v, "%.0f%%", 100));
 				rows.add(new Toggle("Zaokrąglone rogi", () -> c.rounded, v -> c.rounded = v));
+				rows.add(new Toggle("Panel z nickiem, pingiem i FPS", () -> c.infoPill, v -> c.infoPill = v));
 				rows.add(new Info(2, () -> "Ustawienia zapisują się automatycznie w config/ghostvisual.json."));
 			}
 			default -> {
@@ -172,7 +199,7 @@ public class MenuScreen extends Screen {
 		Gfx.textScaled(c, Text.literal(TABS[tab]).formatted(Formatting.BOLD), cx, py + 14, 1.25f, 0xFFFFFFFF);
 		c.fill(cx, py + 31, cx + 26, py + 33, Gfx.argb(accent, 1f));
 
-		if (tab == 7) {
+		if (tab == TABS.length - 1) {
 			renderProfile(c, cfg, th, accent);
 		} else {
 			int maxScroll = Math.max(0, totalH - ch);
@@ -210,18 +237,18 @@ public class MenuScreen extends Screen {
 
 		// zakladki
 		for (int i = 0; i < TABS.length; i++) {
-			int bx = px + 12, by = py + 54 + i * 28, bw = SIDE - 16, bh = 24;
+			int bx = px + 12, by = py + 50 + i * 23, bw = SIDE - 16, bh = 20;
 			boolean active = i == tab;
 			boolean hover = mx >= bx && mx < bx + bw && my >= by && my < by + bh;
 			if (active) {
 				Gfx.roundRect(c, bx, by, bw, bh, cfg.rounded ? 6 : 0, Gfx.argb(accent, 0.14f));
 				Gfx.roundBorder(c, bx, by, bw, bh, cfg.rounded ? 6 : 0, Gfx.argb(accent, 0.9f));
-				c.fill(bx + 3, by + 5, bx + 5, by + bh - 5, Gfx.argb(accent, 1f));
+				c.fill(bx + 3, by + 4, bx + 5, by + bh - 4, Gfx.argb(accent, 1f));
 			} else if (hover) {
 				Gfx.roundRect(c, bx, by, bw, bh, cfg.rounded ? 6 : 0, Gfx.argb(0xFFFFFF, 0.06f));
 			}
-			c.fill(bx + 12, by + 10, bx + 16, by + 14, Gfx.argb(active ? accent : 0xFFFFFF, active ? 1f : 0.35f));
-			Gfx.text(c, TABS[i], bx + 24, by + 8, active ? 0xFFFFFFFF : Gfx.argb(0xFFFFFF, 0.65f));
+			c.fill(bx + 12, by + 8, bx + 16, by + 12, Gfx.argb(active ? accent : 0xFFFFFF, active ? 1f : 0.35f));
+			Gfx.text(c, TABS[i], bx + 24, by + 6, active ? 0xFFFFFFFF : Gfx.argb(0xFFFFFF, 0.65f));
 		}
 
 		// podpis
@@ -301,13 +328,13 @@ public class MenuScreen extends Screen {
 			return true;
 		}
 		for (int i = 0; i < TABS.length; i++) {
-			int bx = px + 12, by = py + 54 + i * 28, bw = SIDE - 16, bh = 24;
+			int bx = px + 12, by = py + 50 + i * 23, bw = SIDE - 16, bh = 20;
 			if (mx >= bx && mx < bx + bw && my >= by && my < by + bh) {
 				setTab(i);
 				return true;
 			}
 		}
-		if (tab != 7 && mx >= cx && mx < cx + cw && my >= cy && my < cy + ch) {
+		if (tab != TABS.length - 1 && mx >= cx && mx < cx + cw && my >= cy && my < cy + ch) {
 			for (Row r : rows) {
 				int oy = r.y;
 				r.y = oy - scroll;

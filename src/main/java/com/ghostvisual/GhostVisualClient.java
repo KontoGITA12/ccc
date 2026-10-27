@@ -8,7 +8,10 @@ import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.ActionResult;
 import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -50,6 +53,13 @@ public class GhostVisualClient implements ClientModInitializer {
 			}
 		});
 
+		AttackEntityCallback.EVENT.register((player, world, hand, entity, hit) -> {
+			if (world.isClient && entity instanceof LivingEntity le) {
+				KillFx.onAttack(le);
+			}
+			return ActionResult.PASS;
+		});
+
 		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> MediaControl.stop());
 		MediaControl.sync(Config.get().musicPanel);
 
@@ -72,5 +82,7 @@ public class GhostVisualClient implements ClientModInitializer {
 		Targets.tick(client);
 		WorldFx.tick(client);
 		PetManager.tick(client);
+		Xray.tick(client);
+		KillFx.tick(client);
 	}
 }

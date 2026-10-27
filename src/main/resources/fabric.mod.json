@@ -8,6 +8,7 @@
 	"license": "MIT",
 	"icon": "assets/ghostvisual/textures/gui/logo.png",
 	"environment": "client",
+	"mixins": ["ghostvisual.mixins.json"],
 	"entrypoints": {
 		"client": ["com.ghostvisual.GhostVisualClient"]
 	},
