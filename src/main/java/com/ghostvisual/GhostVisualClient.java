@@ -23,6 +23,7 @@ public class GhostVisualClient implements ClientModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger("ghostvisual");
 
 	public static KeyBinding openMenuKey;
+	public static KeyBinding lockKey;
 	public static KeyBinding musicPrevKey;
 	public static KeyBinding musicToggleKey;
 	public static KeyBinding musicNextKey;
@@ -33,6 +34,8 @@ public class GhostVisualClient implements ClientModInitializer {
 
 		openMenuKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 			"key.ghostvisual.open_menu", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, "category.ghostvisual"));
+		lockKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+			"key.ghostvisual.lock_gui", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_CONTROL, "category.ghostvisual"));
 		musicPrevKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
 			"key.ghostvisual.music_prev", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_UNKNOWN, "category.ghostvisual"));
 		musicToggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
@@ -68,7 +71,14 @@ public class GhostVisualClient implements ClientModInitializer {
 
 	private static void tick(MinecraftClient client) {
 		while (openMenuKey.wasPressed()) {
-			client.setScreen(new MenuScreen());
+			if (client.currentScreen == null) {
+				Holo.toggleOpen(client);
+			}
+		}
+		while (lockKey.wasPressed()) {
+			if (client.currentScreen == null) {
+				Holo.toggleLock(client);
+			}
 		}
 		while (musicPrevKey.wasPressed()) {
 			MediaControl.send("prev");

@@ -71,6 +71,7 @@ public class Config {
 
 	// muzyka
 	public boolean musicPanel = true;
+	public boolean musicSky = true;
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static Config instance = new Config();

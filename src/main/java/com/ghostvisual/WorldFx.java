@@ -112,6 +112,8 @@ public final class WorldFx {
 				imm.draw(layer);
 			}
 		}
+		MusicSky.render(ctx);
+		Holo.render(ctx);
 	}
 
 	private static void scene(Draw d, MinecraftClient mc, Camera camera, float td) {
