@@ -64,19 +64,38 @@ public final class MusicSky {
 		int cTime = (Math.round(a * 0.7f) << 24) | 0xFFFFFF;
 
 		TextRenderer tr = mc.textRenderer;
-		String title = tr.trimToWidth(MediaControl.title.isEmpty() ? lastTitle : MediaControl.title, 220);
+		String rawTitle = MediaControl.title.isEmpty() ? lastTitle : MediaControl.title;
+		Lyrics.update(rawTitle, MediaControl.artist, MediaControl.duration);
+		String title = tr.trimToWidth(rawTitle, 220);
 		String artist = tr.trimToWidth(MediaControl.artist, 260);
-		String time = Gfx.time(MediaControl.livePosition()) + " / " + Gfx.time(MediaControl.duration);
+		int cur = Lyrics.index(MediaControl.livePosition(), MediaControl.duration);
+		int cDim = (Math.round(a * 0.45f) << 24) | 0xFFFFFF;
+		int cNow = (a << 24) | 0xFFFFFF;
+		int cAcc = (a << 24) | (accent & 0xFFFFFF);
 
-		line(tr, vcp, ms, cam, cx, cy, cz, ux, uz, fx, fz, Text.literal(title).formatted(Formatting.BOLD),
-			tr.getWidth(title), 0.42, 0, cTitle);
-		line(tr, vcp, ms, cam, cx, cy, cz, ux, uz, fx, fz, Text.literal(artist),
-			tr.getWidth(artist), 0.26, 13.5 * 0.42 + 2, cArtist);
-		line(tr, vcp, ms, cam, cx, cy, cz, ux, uz, fx, fz, Text.literal(time),
-			tr.getWidth(time), 0.2, 13.5 * 0.42 + 2 + 9 * 0.26 + 3, cTime);
+		// tytul i wykonawca na gorze, pod nimi tekst: poprzednia, aktualna i nastepna linia
+		center(tr, vcp, ms, cam, cx, cy, cz, ux, uz, fx, fz, Text.literal(title + "  -  " + artist), 0.22, -9, cAcc);
+		if (cur >= 0 || !Lyrics.state.isEmpty()) {
+			if (cur >= 1) {
+				center(tr, vcp, ms, cam, cx, cy, cz, ux, uz, fx, fz, Text.literal(tr.trimToWidth(Lyrics.line(cur - 1), 300)), 0.26, -2, cDim);
+			}
+			String now = cur >= 0 ? Lyrics.line(cur) : Lyrics.state;
+			if (now.isEmpty()) {
+				now = "...";
+			}
+			center(tr, vcp, ms, cam, cx, cy, cz, ux, uz, fx, fz,
+				Text.literal(tr.trimToWidth(now, 340)).formatted(Formatting.BOLD), 0.42, 4, cNow);
+			center(tr, vcp, ms, cam, cx, cy, cz, ux, uz, fx, fz, Text.literal(tr.trimToWidth(Lyrics.line(cur + 1), 300)), 0.26, 12, cDim);
+		}
 		if (vcp instanceof VertexConsumerProvider.Immediate imm) {
 			imm.draw();
 		}
+	}
+
+	private static void center(TextRenderer tr, VertexConsumerProvider vcp, MatrixStack ms, Vec3d cam,
+							   double cx, double cy, double cz, double ux, double uz, double fx, double fz,
+							   Text text, double s, double drop, int color) {
+		line(tr, vcp, ms, cam, cx, cy, cz, ux, uz, fx, fz, text, tr.getWidth(text), s, drop * 0.5, color);
 	}
 
 	/** Jedna linia tekstu wysrodkowana w punkcie c, przesunieta w dol o dropBlocks blokow. */

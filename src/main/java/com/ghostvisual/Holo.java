@@ -26,7 +26,7 @@ public final class Holo {
 	private Holo() {
 	}
 
-	public static final String VERSION = "1.2.0";
+	public static final String VERSION = "1.2.1";
 	static final int W = 560, H = 336;
 	static final double S = 0.0062;
 
@@ -146,19 +146,25 @@ public final class Holo {
 
 	// ------------------------------------------------------------ celowanie kursorem
 
-	/** Zamienia pozycje kursora (wsp. GUI) na wspolrzedne panelu przez promien z kamery. */
+	private static org.joml.Matrix4f invProj, invView;
+
+	/** Pozycja kursora (wsp. GUI) -> wsp. panelu. */
 	public static void pick(MinecraftClient mc, double sx, double sy) {
-		hasMouse = false;
-		Camera cam = mc.gameRenderer.getCamera();
-		Vec3d o = cam.getPos();
-		double yaw = Math.toRadians(cam.getYaw()), pitch = Math.toRadians(cam.getPitch());
-		double fx = -Math.sin(yaw) * Math.cos(pitch), fy = -Math.sin(pitch), fz = Math.cos(yaw) * Math.cos(pitch);
-		double rx = -Math.cos(yaw), ry = 0, rz = -Math.sin(yaw);
-		double upx = ry * fz - rz * fy, upy = rz * fx - rx * fz, upz = rx * fy - ry * fx;
 		double w = mc.getWindow().getScaledWidth(), h = mc.getWindow().getScaledHeight();
-		double tan = Math.tan(Math.toRadians(mc.options.getFov().getValue()) / 2.0);
-		double ndx = (2 * sx / w - 1) * tan * (w / h), ndy = (1 - 2 * sy / h) * tan;
-		double dx = fx + rx * ndx + upx * ndy, dy = fy + ry * ndx + upy * ndy, dz = fz + rz * ndx + upz * ndy;
+		pickNdc(mc, 2 * sx / w - 1, 1 - 2 * sy / h);
+	}
+
+	/** Promien z kamery przez punkt ekranu (NDC) na plaszczyzne panelu, dokladnie wg macierzy renderu. */
+	static void pickNdc(MinecraftClient mc, double ndx, double ndy) {
+		hasMouse = false;
+		if (invProj == null || invView == null) {
+			return;
+		}
+		Vec3d o = mc.gameRenderer.getCamera().getPos();
+		org.joml.Vector4f e = new org.joml.Vector4f((float) ndx, (float) ndy, 1f, 1f).mul(invProj);
+		e.div(e.w);
+		org.joml.Vector4f wd = new org.joml.Vector4f(e.x, e.y, e.z, 0f).mul(invView);
+		double dx = wd.x, dy = wd.y, dz = wd.z;
 		double denom = dx * nx + dz * nz;
 		if (Math.abs(denom) < 1e-6) {
 			return;
@@ -171,6 +177,40 @@ public final class Holo {
 		mx = (float) ((px * ux + pz * uz) / S + W / 2.0);
 		my = (float) (H / 2.0 - py / S);
 		hasMouse = mx >= 0 && mx <= W && my >= 0 && my <= H;
+	}
+
+	/** Wywolywane co tick: klikanie panelu lewym przyciskiem, gdy jest przypiety (celownik jako kursor). */
+	public static void tickPinned(MinecraftClient mc) {
+		if (!open || interactive || mc.currentScreen != null || mc.player == null) {
+			return;
+		}
+		var atk = mc.options.attackKey;
+		if (hasMouse) {
+			boolean any = false;
+			while (atk.wasPressed()) {
+				pressed = true;
+				any = true;
+			}
+			atk.setPressed(false);
+			boolean now = org.lwjgl.glfw.GLFW.glfwGetMouseButton(mc.getWindow().getHandle(), org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+			if (any || now) {
+				down = true;
+			}
+			if (!now && !any) {
+				if (down) {
+					Config.get().save();
+				}
+				down = false;
+				dragId = 0;
+			}
+		} else if (down) {
+			boolean now = org.lwjgl.glfw.GLFW.glfwGetMouseButton(mc.getWindow().getHandle(), org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT) == org.lwjgl.glfw.GLFW.GLFW_PRESS;
+			if (!now) {
+				down = false;
+				dragId = 0;
+				Config.get().save();
+			}
+		}
 	}
 
 	private static double[] P(double u, double v) {
@@ -195,11 +235,15 @@ public final class Holo {
 		if (ddx * ddx + ddz * ddz > 80 * 80) {
 			return;
 		}
-		if (!interactive) {
+		try {
+			invProj = new Matrix4f(ctx.projectionMatrix()).invert();
+			invView = new Matrix4f(ms.peek().getPositionMatrix()).invert();
+		} catch (Exception ignored) {
+		}
+		if (!interactive && mc.currentScreen == null) {
+			pickNdc(mc, 0, 0);
+		} else if (!interactive) {
 			hasMouse = false;
-			pressed = false;
-			down = false;
-			dragId = 0;
 		}
 		Canvas c = new Canvas();
 		build(c, mc, Config.get());
@@ -515,7 +559,11 @@ public final class Holo {
 		c.text("made by shvga", 16, H - 15, 0.8f, col(0xFFFFFF, 0.5f));
 		String hint = interactive
 			? "[" + keyName(GhostVisualClient.lockKey) + "] przypnij  [" + keyName(GhostVisualClient.openMenuKey) + "] zamknij"
-			: "[" + keyName(GhostVisualClient.lockKey) + "] odblokuj kursor";
+			: "LPM na celowniku klika  [" + keyName(GhostVisualClient.lockKey) + "] odblokuj kursor";
+		if (hasMouse) {
+			c.rrect(mx - 2.5f, my - 2.5f, 5, 5, 2, 0xFFFFFFFF);
+			c.rborder(mx - 3.5f, my - 3.5f, 7, 7, 3, col(ac, 1f));
+		}
 		c.textRight(hint, W - 16, H - 15, 0.75f, col(0xFFFFFF, 0.5f));
 	}
 

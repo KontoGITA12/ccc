@@ -70,6 +70,7 @@ public class GhostVisualClient implements ClientModInitializer {
 	}
 
 	private static void tick(MinecraftClient client) {
+		Holo.tickPinned(client);
 		while (openMenuKey.wasPressed()) {
 			if (client.currentScreen == null) {
 				Holo.toggleOpen(client);
