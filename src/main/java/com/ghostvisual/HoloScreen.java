@@ -11,6 +11,23 @@ public class HoloScreen extends Screen {
 		super(Text.literal("GhostVisual"));
 	}
 
+	/** Pozwala chodzic z wolnym kursorem: klawisze ruchu sa czytane bezposrednio z klawiatury. */
+	@Override
+	public void tick() {
+		MinecraftClient mc = MinecraftClient.getInstance();
+		var o = mc.options;
+		for (var kb : new net.minecraft.client.option.KeyBinding[]{o.forwardKey, o.backKey, o.leftKey, o.rightKey,
+			o.jumpKey, o.sneakKey, o.sprintKey}) {
+			try {
+				var k = net.minecraft.client.util.InputUtil.fromTranslationKey(kb.getBoundKeyTranslationKey());
+				if (k.getCategory() == net.minecraft.client.util.InputUtil.Type.KEYSYM) {
+					kb.setPressed(net.minecraft.client.util.InputUtil.isKeyPressed(mc.getWindow().getHandle(), k.getCode()));
+				}
+			} catch (Exception ignored) {
+			}
+		}
+	}
+
 	@Override
 	public boolean shouldPause() {
 		return false;
@@ -70,6 +87,7 @@ public class HoloScreen extends Screen {
 
 	@Override
 	public void removed() {
+		net.minecraft.client.option.KeyBinding.unpressAll();
 		Holo.interactive = false;
 		Holo.down = false;
 		Holo.dragId = 0;

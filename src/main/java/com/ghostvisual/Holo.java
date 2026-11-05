@@ -26,7 +26,7 @@ public final class Holo {
 	private Holo() {
 	}
 
-	public static final String VERSION = "1.2.1";
+	public static final String VERSION = "1.2.2";
 	static final int W = 560, H = 336;
 	static final double S = 0.0062;
 
@@ -237,7 +237,7 @@ public final class Holo {
 		}
 		try {
 			invProj = new Matrix4f(ctx.projectionMatrix()).invert();
-			invView = new Matrix4f(ms.peek().getPositionMatrix()).invert();
+			invView = new Matrix4f().rotation(ctx.camera().getRotation());
 		} catch (Exception ignored) {
 		}
 		if (!interactive && mc.currentScreen == null) {
