@@ -69,6 +69,11 @@ public class Config {
 	public int chinaHat = 0;
 	public float chinaHatScale = 1f;
 
+	// dzwieki
+	public int hitSound = 0;
+	public int killSound = 0;
+	public float soundVolume = 0.8f;
+
 	// muzyka
 	public boolean musicPanel = true;
 	public boolean musicSky = true;
@@ -120,6 +125,9 @@ public class Config {
 	private void clamp() {
 		theme = Math.max(0, Math.min(Theme.values().length - 1, theme));
 		panelAlpha = c(panelAlpha, 0.3f, 1f);
+		hitSound = Math.max(0, Math.min(3, hitSound));
+		killSound = Math.max(0, Math.min(6, killSound));
+		soundVolume = c(soundVolume, 0.1f, 1f);
 		range = c(range, 3f, 64f);
 		speed = c(speed, 0.2f, 3f);
 		trailSeconds = c(trailSeconds, 0.5f, 6f);

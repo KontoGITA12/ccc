@@ -26,7 +26,7 @@ public final class Holo {
 	private Holo() {
 	}
 
-	public static final String VERSION = "1.2.2";
+	public static final String VERSION = "1.3.1";
 	static final int W = 560, H = 336;
 	static final double S = 0.0062;
 
@@ -56,8 +56,9 @@ public final class Holo {
 		"Deszcz", "Zamieć", "Świetliki",
 		"Niebo: Aurora", "Niebo: Mgławica", "Niebo: Zmierzch", "Niebo: Fiolet", "Niebo: Szare",
 		"Shockwave", "Palka po zabiciu", "Piorun po zabiciu",
-		"Panel muzyki", "Tekst muzyki na niebie", "Panel FPS i ping", "Panel celu"};
-	private static final int[] CAT = {1, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 5, 5, 5, 5};
+		"Panel muzyki", "Tekst muzyki na niebie", "Panel FPS i ping", "Panel celu",
+		"Dźwięk trafienia", "Dźwięk zabicia"};
+	private static final int[] CAT = {1, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 5, 5, 5, 5, 4, 4};
 	private static final String[] DESC = {
 		"Pierścień, skaner, orbita i poświata wokół gracza lub moba, w którego celujesz.",
 		"Świecący szkielet widoczny przez model gracza i przez ściany.",
@@ -78,7 +79,9 @@ public final class Holo {
 		"Panel w lewym górnym rogu z okładką i sterowaniem muzyką.",
 		"Tytuł i wykonawca grającej muzyki jako napis na niebie.",
 		"Mała pigułka z nickiem, pingiem i FPS u góry ekranu.",
-		"Nick i pasek HP celu pod celownikiem."};
+		"Nick i pasek HP celu pod celownikiem.",
+		"Dźwięk przy każdym trafieniu w gracza lub moba. Słyszysz go tylko Ty.",
+		"Dźwięk anime przy zabiciu. Słyszysz go tylko Ty."};
 
 	// ------------------------------------------------------------ stan i polozenie
 
@@ -422,6 +425,8 @@ public final class Holo {
 			case 18 -> c.musicPanel;
 			case 19 -> c.musicSky;
 			case 20 -> c.infoPill;
+			case 22 -> c.hitSound != 0;
+			case 23 -> c.killSound != 0;
 			default -> c.targetPanel;
 		};
 	}
@@ -452,6 +457,8 @@ public final class Holo {
 			}
 			case 19 -> c.musicSky = v;
 			case 20 -> c.infoPill = v;
+			case 22 -> c.hitSound = v ? (c.hitSound == 0 ? 1 : c.hitSound) : 0;
+			case 23 -> c.killSound = v ? (c.killSound == 0 ? 1 : c.killSound) : 0;
 			default -> c.targetPanel = v;
 		}
 	}
@@ -501,6 +508,15 @@ public final class Holo {
 			case 16, 17 -> {
 				cfg.killPlayersOnly = tog(c, "Tylko gdy zabijesz gracza", cfg.killPlayersOnly);
 				note(c, "Efekt widzisz tylko Ty. Nie wpływa na gracza ani serwer.");
+			}
+			case 22 -> {
+				cfg.hitSound = cho(c, "Dźwięk", Sounds.HIT, cfg.hitSound);
+				cfg.soundVolume = sld(c, "Głośność", cfg.soundVolume, 0.1f, 1, "%.0f%%", 100);
+			}
+			case 23 -> {
+				cfg.killSound = cho(c, "Dźwięk", Sounds.KILL, cfg.killSound);
+				cfg.soundVolume = sld(c, "Głośność", cfg.soundVolume, 0.1f, 1, "%.0f%%", 100);
+				note(c, "Zagra się też po zabiciu, nawet bez efektów wizualnych.");
 			}
 			case 19 -> note(c, "Napis pojawia się na niebie po zmianie utworu. Działa tylko na Windows.");
 			default -> {
@@ -565,6 +581,9 @@ public final class Holo {
 			c.rborder(mx - 3.5f, my - 3.5f, 7, 7, 3, col(ac, 1f));
 		}
 		c.textRight(hint, W - 16, H - 15, 0.75f, col(0xFFFFFF, 0.5f));
+		if (interactive) {
+			c.text(String.format("%s %.0f,%.0f", hasMouse ? "OK" : "--", mx, my), 130, H - 15, 0.7f, col(0xFFFFFF, 0.35f));
+		}
 	}
 
 	private static String keyName(net.minecraft.client.option.KeyBinding k) {

@@ -1,0 +1,47 @@
+{
+ "hit_1": {
+  "sounds": [
+   "ghostvisual:hit_1"
+  ]
+ },
+ "hit_2": {
+  "sounds": [
+   "ghostvisual:hit_2"
+  ]
+ },
+ "hit_3": {
+  "sounds": [
+   "ghostvisual:hit_3"
+  ]
+ },
+ "kill_1": {
+  "sounds": [
+   "ghostvisual:kill_1"
+  ]
+ },
+ "kill_2": {
+  "sounds": [
+   "ghostvisual:kill_2"
+  ]
+ },
+ "kill_3": {
+  "sounds": [
+   "ghostvisual:kill_3"
+  ]
+ },
+ "kill_4": {
+  "sounds": [
+   "ghostvisual:kill_4"
+  ]
+ },
+ "kill_5": {
+  "sounds": [
+   "ghostvisual:kill_5"
+  ]
+ },
+ "kill_6": {
+  "sounds": [
+   "ghostvisual:kill_6"
+  ]
+ }
+}

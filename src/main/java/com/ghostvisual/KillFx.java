@@ -33,6 +33,7 @@ public final class KillFx {
 		if (mc.player == null || e == mc.player) {
 			return;
 		}
+		Sounds.play("hit", cfg.hitSound, 0.95f + (float) Math.random() * 0.15f);
 		long now = System.currentTimeMillis();
 		double dx = e.getX() - mc.player.getX(), dz = e.getZ() - mc.player.getZ();
 		double l = Math.sqrt(dx * dx + dz * dz);
@@ -99,6 +100,7 @@ public final class KillFx {
 		if (cfg.killPlayersOnly && !(h.e instanceof PlayerEntity)) {
 			return;
 		}
+		Sounds.play("kill", cfg.killSound, 1f);
 		if (cfg.shockwave == 2 || cfg.shockwave == 3) {
 			WorldFx.addShock(h.x, h.y, h.z, 6.5);
 		}
