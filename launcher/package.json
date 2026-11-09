@@ -1,0 +1,17 @@
+{
+  "name": "ghostvisual-launcher",
+  "version": "1.0.0",
+  "description": "GhostVisual Launcher",
+  "author": "shvga",
+  "main": "main.js",
+  "scripts": { "start": "electron .", "dist": "electron-builder --win portable" },
+  "devDependencies": { "electron": "33.2.1", "electron-builder": "25.1.8" },
+  "build": {
+    "appId": "com.shvga.ghostvisual.launcher",
+    "productName": "GhostVisualLauncher",
+    "win": { "target": "portable", "icon": "build/icon.ico", "artifactName": "GhostVisualLauncher.exe" },
+    "extraResources": [ { "from": "resources", "to": "res" } ],
+    "files": [ "main.js", "preload.js", "index.html", "logo.png" ],
+    "directories": { "output": "dist" }
+  }
+}
