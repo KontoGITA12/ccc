@@ -7,7 +7,8 @@ public enum Theme {
 	GOLD("Złoty", 0xFFC83D, 0xFF9E1F, 0x1A1408),
 	GREEN("Zielony", 0x1FD6A0, 0x36F08A, 0x08201C),
 	ORANGE("Pomarańczowy", 0xFF7A29, 0xFFB037, 0x1D0F07),
-	PURPLE_PINK("Fiolet i róż", 0xFF4FD8, 0xA05BFF, 0x1A0A1C);
+	PURPLE_PINK("Fiolet i róż", 0xFF4FD8, 0xA05BFF, 0x1A0A1C),
+	MONO("Czerń i biel", 0xFFFFFF, 0x9AA0A6, 0x050505);
 
 	public final String label;
 	public final int accent;

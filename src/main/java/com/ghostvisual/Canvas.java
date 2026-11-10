@@ -7,14 +7,17 @@ import java.util.List;
 
 /** Lista polecen rysowania w jednostkach panelu (zapisywana co klatke, rysowana w swiecie 3D). */
 final class Canvas {
-	record Rect(float x, float y, float w, float h, int argb) {
+	record Rect(float x, float y, float w, float h, int argb, float z) {
 	}
 
-	record Txt(String s, float x, float y, float scale, int argb, boolean bold) {
+	record Txt(String s, float x, float y, float scale, int argb, boolean bold, float z) {
 	}
 
-	record Img(Identifier id, float x, float y, float w, float h) {
+	record Img(Identifier id, float x, float y, float w, float h, float z) {
 	}
+
+	/** Aktualna glebokosc warstwy (w blokach, + w strone gracza). */
+	float z = 0f;
 
 	final List<Rect> rects = new ArrayList<>();
 	final List<Txt> texts = new ArrayList<>();
@@ -24,7 +27,7 @@ final class Canvas {
 		if ((argb >>> 24) == 0 || w <= 0 || h <= 0) {
 			return;
 		}
-		rects.add(new Rect(x, y, w, h, argb));
+		rects.add(new Rect(x, y, w, h, argb, z));
 	}
 
 	private static int inset(int r, int i) {
@@ -67,7 +70,7 @@ final class Canvas {
 		if (s == null || s.isEmpty()) {
 			return;
 		}
-		texts.add(new Txt(s, x, y, scale, argb, bold));
+		texts.add(new Txt(s, x, y, scale, argb, bold, z));
 	}
 
 	void text(String s, float x, float y, float scale, int argb) {
@@ -87,6 +90,6 @@ final class Canvas {
 	}
 
 	void img(Identifier id, float x, float y, float w, float h) {
-		imgs.add(new Img(id, x, y, w, h));
+		imgs.add(new Img(id, x, y, w, h, z));
 	}
 }

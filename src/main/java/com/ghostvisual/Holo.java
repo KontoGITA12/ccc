@@ -26,7 +26,7 @@ public final class Holo {
 	private Holo() {
 	}
 
-	public static final String VERSION = "1.3.2";
+	public static final String VERSION = "1.4.0";
 	static final int W = 560, H = 336;
 	static final double S = 0.0062;
 
@@ -81,7 +81,7 @@ public final class Holo {
 		"Mała pigułka z nickiem, pingiem i FPS u góry ekranu.",
 		"Nick i pasek HP celu pod celownikiem.",
 		"Dźwięk przy każdym trafieniu w gracza lub moba. Słyszysz go tylko Ty.",
-		"Dźwięk anime przy zabiciu. Słyszysz go tylko Ty."};
+		"Śmieszny dźwięk przy zabiciu. Słyszysz go tylko Ty."};
 
 	// ------------------------------------------------------------ stan i polozenie
 
@@ -90,6 +90,7 @@ public final class Holo {
 			return;
 		}
 		anchor(mc);
+		openStart = System.currentTimeMillis();
 		open = true;
 		interactive = interact;
 		if (interact) {
@@ -216,9 +217,23 @@ public final class Holo {
 		}
 	}
 
+	static long openStart = 0;
+	private static double scl = 1, bob = 0, fade = 1;
+
 	private static double[] P(double u, double v) {
-		double a = (u - W / 2.0) * S;
-		return new double[]{cx + ux * a, cy + (H / 2.0 - v) * S, cz + uz * a};
+		return P(u, v, 0);
+	}
+
+	/** Punkt panelu; z = wysuniecie w strone gracza (paralaksa), scl/bob = animacja otwarcia i unoszenie. */
+	private static double[] P(double u, double v, double z) {
+		double a = (u - W / 2.0) * S * scl;
+		double b = (H / 2.0 - v) * S * scl;
+		return new double[]{cx + ux * a + nx * z, cy + b + bob, cz + uz * a + nz * z};
+	}
+
+	private static int fadeA(int argb) {
+		int a = Math.round((argb >>> 24) * (float) fade);
+		return (a << 24) | (argb & 0xFFFFFF);
 	}
 
 	// ------------------------------------------------------------ rysowanie w swiecie
@@ -248,6 +263,11 @@ public final class Holo {
 		} else if (!interactive) {
 			hasMouse = false;
 		}
+		double ot = Math.min(1.0, (System.currentTimeMillis() - openStart) / 450.0);
+		double e = 1 - Math.pow(1 - ot, 3);
+		scl = 0.55 + 0.45 * e + Math.sin(ot * Math.PI) * 0.03;
+		fade = e;
+		bob = Math.sin(System.nanoTime() / 1.0e9 * 0.9) * 0.02;
 		Canvas c = new Canvas();
 		build(c, mc, Config.get());
 		pressed = false;
@@ -259,8 +279,9 @@ public final class Holo {
 		d.begin(vcp.getBuffer(layer), Draw.XRAY);
 		d.quadTarget = Draw.XRAY;
 		for (Canvas.Rect r : c.rects) {
-			float a = (r.argb() >>> 24) / 255f;
-			d.quad(P(r.x(), r.y()), P(r.x() + r.w(), r.y()), P(r.x() + r.w(), r.y() + r.h()), P(r.x(), r.y() + r.h()),
+			float a = (r.argb() >>> 24) / 255f * (float) fade;
+			double z = r.z();
+			d.quad(P(r.x(), r.y(), z), P(r.x() + r.w(), r.y(), z), P(r.x() + r.w(), r.y() + r.h(), z), P(r.x(), r.y() + r.h(), z),
 				r.argb() & 0xFFFFFF, a);
 		}
 		if (vcp instanceof VertexConsumerProvider.Immediate imm) {
@@ -272,13 +293,14 @@ public final class Holo {
 		for (Canvas.Img im : c.imgs) {
 			RenderLayer il = RenderLayer.getGuiTextured(im.id());
 			VertexConsumer vc = vcp.getBuffer(il);
-			double[][] p = {P(im.x(), im.y()), P(im.x() + im.w(), im.y()), P(im.x() + im.w(), im.y() + im.h()), P(im.x(), im.y() + im.h())};
+			double iz = im.z();
+			double[][] p = {P(im.x(), im.y(), iz), P(im.x() + im.w(), im.y(), iz), P(im.x() + im.w(), im.y() + im.h(), iz), P(im.x(), im.y() + im.h(), iz)};
 			float[][] uv = {{0, 0}, {1, 0}, {1, 1}, {0, 1}};
 			for (int pass = 0; pass < 2; pass++) {
 				for (int k = 0; k < 4; k++) {
 					int i = pass == 0 ? k : 3 - k;
 					vc.vertex(mat, (float) (p[i][0] - cam.x), (float) (p[i][1] - cam.y), (float) (p[i][2] - cam.z))
-						.texture(uv[i][0], uv[i][1]).color(255, 255, 255, 255);
+						.texture(uv[i][0], uv[i][1]).color(255, 255, 255, Math.round(255 * (float) fade));
 				}
 			}
 			if (vcp instanceof VertexConsumerProvider.Immediate imm) {
@@ -289,8 +311,8 @@ public final class Holo {
 		// 3) tekst
 		TextRenderer tr = mc.textRenderer;
 		for (Canvas.Txt t : c.texts) {
-			double[] o = P(t.x(), t.y());
-			double s = S * t.scale();
+			double[] o = P(t.x(), t.y(), t.z());
+			double s = S * t.scale() * scl;
 			Matrix4f m = new Matrix4f(mat);
 			Matrix4f local = new Matrix4f().set(
 				(float) (ux * s), 0f, (float) (uz * s), 0f,
@@ -299,7 +321,7 @@ public final class Holo {
 				(float) (o[0] - cam.x), (float) (o[1] - cam.y), (float) (o[2] - cam.z), 1f);
 			m.mul(local);
 			Text text = t.bold() ? Text.literal(t.s()).formatted(Formatting.BOLD) : Text.literal(t.s());
-			tr.draw(text, 0f, 0f, t.argb(), false, m, vcp, TextRenderer.TextLayerType.SEE_THROUGH, 0,
+			tr.draw(text, 0f, 0f, fadeA(t.argb()), false, m, vcp, TextRenderer.TextLayerType.SEE_THROUGH, 0,
 				LightmapTextureManager.MAX_LIGHT_COORDINATE);
 		}
 		if (vcp instanceof VertexConsumerProvider.Immediate imm) {
@@ -511,11 +533,11 @@ public final class Holo {
 			}
 			case 22 -> {
 				cfg.hitSound = cho(c, "Dźwięk", Sounds.HIT, cfg.hitSound);
-				cfg.soundVolume = sld(c, "Głośność", cfg.soundVolume, 0.1f, 1, "%.0f%%", 100);
+				cfg.soundVolume = sld(c, "Głośność", cfg.soundVolume, 0.1f, 2, "%.0f%%", 100);
 			}
 			case 23 -> {
 				cfg.killSound = cho(c, "Dźwięk", Sounds.KILL, cfg.killSound);
-				cfg.soundVolume = sld(c, "Głośność", cfg.soundVolume, 0.1f, 1, "%.0f%%", 100);
+				cfg.soundVolume = sld(c, "Głośność", cfg.soundVolume, 0.1f, 2, "%.0f%%", 100);
 				note(c, "Zagra się też po zabiciu, nawet bez efektów wizualnych.");
 			}
 			case 19 -> note(c, "Napis pojawia się na niebie po zmianie utworu. Działa tylko na Windows.");
@@ -531,19 +553,51 @@ public final class Holo {
 		int ac = th.accent(cfg.animateColors);
 		accent = ac;
 
-		// poswiata i tlo
-		for (int i = 3; i >= 1; i--) {
-			c.rrect(-i * 3, -i * 3, W + i * 6, H + i * 6, 12 + i * 2, col(ac, 0.04f));
+		// warstwy 3D: cien pod panelem, poswiata, korpus szklany, polysk
+		double tm = System.nanoTime() / 1.0e9;
+		c.z = -0.06f;
+		for (int i = 5; i >= 1; i--) {
+			c.rrect(-i * 4 + 4, -i * 3 + 16, W + i * 8 - 8, H + i * 6 - 6, 14 + i * 3, col(0x000000, 0.09f));
 		}
+		c.z = -0.012f;
+		float pulse = 0.045f + 0.025f * (float) Math.sin(tm * 1.6);
+		for (int i = 4; i >= 1; i--) {
+			c.rrect(-i * 3, -i * 3, W + i * 6, H + i * 6, 12 + i * 2, col(ac, pulse * (1f - i * 0.15f)));
+		}
+		c.z = 0f;
 		c.rrect(0, 0, W, H, 10, col(th.bg, cfg.panelAlpha));
-		c.rrect(1, 1, W - 2, 40, 9, col(0xFFFFFF, 0.025f));
-		c.rborder(0, 0, W, H, 10, col(ac, 0.55f));
-		c.rect(10, 1, W - 20, 1, col(0xFFFFFF, 0.14f));
+		c.z = 0.004f;
+		for (int i = 0; i < 14; i++) {
+			c.rect(4, 3 + i * 6, W - 8, 6, col(0xFFFFFF, 0.05f * (1f - i / 14f)));
+		}
+		// przesuwajacy sie polysk szkla
+		float bx0 = (float) ((tm * 0.16) % 1.8 - 0.4) * W;
+		c.z = 0.008f;
+		for (int i = 0; i < 9; i++) {
+			float k = 1f - Math.abs(i - 4) / 4.5f;
+			float x0 = bx0 + i * 9;
+			float xa = Math.max(5, x0), xb = Math.min(W - 5, x0 + 9);
+			if (xb > xa) {
+				c.rect(xa, 6, xb - xa, H - 12, col(0xFFFFFF, 0.05f * k));
+			}
+		}
+		c.z = 0.012f;
+		c.rborder(0, 0, W, H, 10, col(ac, 0.6f));
+		c.rect(10, 1, W - 20, 1, col(0xFFFFFF, 0.2f));
+		// swietlny punkt biegnacy po krawedzi
+		float seg = (float) ((tm * 140) % (W + 120)) - 60;
+		for (int i = 0; i < 6; i++) {
+			float sx = seg + i * 10;
+			if (sx > 10 && sx < W - 10) {
+				c.rect(sx, 0, 10, 2, col(0xFFFFFF, 0.12f + 0.12f * i));
+				c.rect(W - sx - 10, H - 2, 10, 2, col(ac, 0.12f + 0.1f * i));
+			}
+		}
 
 		// naglowek: logo, nazwa, zakladki
 		c.rborder(13, 8, 28, 28, 3, col(ac, 0.9f));
 		c.img(Gfx.LOGO, 14, 9, 26, 26);
-		c.text("GhostVisual", 48, 10, 1.15f, 0xFFFFFFFF, true);
+		c.text("Attention", 48, 10, 1.15f, 0xFFFFFFFF, true);
 		c.text("v" + VERSION, 48, 24, 0.7f, col(0xFFFFFF, 0.5f));
 		float tx = 190;
 		for (int i = 0; i < TABS.length; i++) {
@@ -564,6 +618,7 @@ public final class Holo {
 		}
 		c.rect(0, 41, W, 1, col(0xFFFFFF, 0.08f));
 
+		c.z = 0.02f;
 		switch (tab) {
 			case 0 -> buildVisuals(c, cfg, ac);
 			case 1 -> buildStyle(c, cfg, th, ac);
@@ -571,12 +626,24 @@ public final class Holo {
 			default -> buildProfile(c, mc, cfg, ac);
 		}
 
+		// pływające cząsteczki wokół panelu (paralaksa)
+		for (int i = 0; i < 26; i++) {
+			double ang = i * 0.241 + tm * (0.08 + (i % 4) * 0.025);
+			float u = (float) (W / 2.0 + Math.cos(ang) * (W * 0.58 + 26 * Math.sin(tm * 0.7 + i)));
+			float v = (float) (H / 2.0 + Math.sin(ang) * (H * 0.66 + 16 * Math.cos(tm * 0.5 + i * 2)));
+			float tw = (float) Math.pow(Math.sin(tm * 1.8 + i * 1.7) * 0.5 + 0.5, 2);
+			c.z = -0.3f + (i % 6) * 0.14f;
+			float sz = 2f + (i % 3);
+			c.rect(u, v, sz, sz, col(i % 3 == 0 ? ac : 0xFFFFFF, 0.12f + 0.5f * tw));
+		}
+		c.z = 0.012f;
 		// stopka
 		c.text("made by shvga", 16, H - 15, 0.8f, col(0xFFFFFF, 0.5f));
 		String hint = interactive
 			? "[" + keyName(GhostVisualClient.lockKey) + "] przypnij  [" + keyName(GhostVisualClient.openMenuKey) + "] zamknij"
 			: "LPM na celowniku klika  [" + keyName(GhostVisualClient.lockKey) + "] odblokuj kursor";
 		if (hasMouse) {
+			c.z = 0.08f;
 			c.rrect(mx - 2.5f, my - 2.5f, 5, 5, 2, 0xFFFFFFFF);
 			c.rborder(mx - 3.5f, my - 3.5f, 7, 7, 3, col(ac, 1f));
 		}
@@ -635,6 +702,10 @@ public final class Holo {
 			boolean sel = m == selected;
 			boolean hv = hover(x, y, w, h);
 			boolean isOn = on(m, cfg);
+			c.z = hv ? 0.055f : (sel ? 0.04f : 0.026f);
+			if (hv) {
+				c.rrect(x + 2, y + 3, w, h, 6, col(0x000000, 0.28f));
+			}
 			c.rrect(x, y, w, h, 6, sel ? col(ac, 0.14f) : col(0xFFFFFF, hv ? 0.09f : 0.05f));
 			if (sel) {
 				c.rborder(x, y, w, h, 6, col(ac, 0.85f));
@@ -667,6 +738,7 @@ public final class Holo {
 		c.textCenter((page + 1) + "/" + pages, bx + 35, H - 31, 0.85f, col(0xFFFFFF, 0.8f), false);
 
 		// panel szczegolow
+		c.z = 0.036f;
 		float dx = 352, dy = 50, dw = 192, dh = H - 50 - 40;
 		c.rrect(dx, dy, dw, dh, 8, col(0x000000, 0.28f));
 		c.rborder(dx, dy, dw, dh, 8, col(0xFFFFFF, 0.08f));
@@ -694,6 +766,7 @@ public final class Holo {
 			float x = 16 + (i % 4) * (cw + 8), y = 54 + (i / 4) * 62, h = 54;
 			boolean sel = cfg.theme == i;
 			boolean hv = hover(x, y, cw, h);
+			c.z = hv ? 0.055f : 0.03f;
 			if (clicked(x, y, cw, h)) {
 				cfg.theme = i;
 			}
@@ -721,7 +794,7 @@ public final class Holo {
 		fy += 16;
 		note(c, "[" + keyName(GhostVisualClient.openMenuKey) + "] otwiera i zamyka panel. Panel pojawia się przed Tobą i zostaje w tym miejscu w świecie.");
 		note(c, "[" + keyName(GhostVisualClient.lockKey) + "] przypina panel: kursor wraca do gry, możesz chodzić, a panel zostaje w miejscu. Wciśnij ponownie, żeby znów go używać.");
-		note(c, "Klawisze muzyki (poprzedni, pauza, dalej) ustawisz w Sterowaniu Minecrafta, kategoria GhostVisual.");
+		note(c, "Klawisze muzyki (poprzedni, pauza, dalej) ustawisz w Sterowaniu Minecrafta, kategoria Attention.");
 		fy += 6;
 		float bx = fx, by = fy, bw = 190, bh = 22;
 		boolean hv = hover(bx, by, bw, bh);
@@ -741,7 +814,7 @@ public final class Holo {
 		c.img(Gfx.LOGO, x + 13, y + 13, 66, 66);
 		float tx = x + 94;
 		c.text("shvga", tx, y + 10, 2.0f, 0xFFFFFFFF, true);
-		c.text("Twórca GhostVisual", tx, y + 32, 0.95f, col(0xFFFFFF, 0.88f));
+		c.text("Twórca Attention", tx, y + 32, 0.95f, col(0xFFFFFF, 0.88f));
 		float bx = tx;
 		bx += pill(c, "OWNER", bx, y + 48, ac, 0.95f, 0xFF04110E) + 5;
 		bx += pill(c, "AUTOR", bx, y + 48, ac, 0.22f, col(ac, 1f)) + 5;
@@ -759,7 +832,7 @@ public final class Holo {
 		float dh = H - 40 - dy;
 		c.rrect(x, dy, w, dh, 8, col(0xFFFFFF, 0.05f));
 		c.rborder(x, dy, w, dh, 8, col(0xFFFFFF, 0.08f));
-		c.text("GhostVisual", x + 10, dy + 8, 0.95f, 0xFFFFFFFF, true);
+		c.text("Attention", x + 10, dy + 8, 0.95f, 0xFFFFFFFF, true);
 		float ly = dy + 22;
 		for (String l : wrap("Efekty wizualne celu, xray, nieba, pety z Minecrafta, China Hat, glass, efekty po zabiciu "
 			+ "oraz panel muzyki z okładką. Made by shvga.", w - 20, 0.8f)) {

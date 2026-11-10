@@ -11,7 +11,7 @@
     "productName": "GhostVisualLauncher",
     "win": { "target": "portable", "icon": "build/icon.ico", "artifactName": "GhostVisualLauncher.exe" },
     "extraResources": [ { "from": "resources", "to": "res" } ],
-    "files": [ "main.js", "preload.js", "index.html", "logo.png" ],
+    "files": [ "main.js", "preload.js", "index.html", "logo.png", "bg.jpg" ],
     "directories": { "output": "dist" }
   }
 }

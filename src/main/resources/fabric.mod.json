@@ -2,7 +2,7 @@
 	"schemaVersion": 1,
 	"id": "ghostvisual",
 	"version": "${version}",
-	"name": "GhostVisual",
+	"name": "Attention",
 	"description": "Efekty wizualne celu, pety, China Hat i panel muzyki. Made by shvga.",
 	"authors": ["shvga"],
 	"license": "MIT",

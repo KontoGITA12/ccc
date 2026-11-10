@@ -43,7 +43,7 @@ async function installFabric() {
   data.profiles = data.profiles || {};
   const now = new Date().toISOString();
   data.profiles['ghostvisual-fabric'] = {
-    name: 'GhostVisual (Fabric ' + MC + ')', type: 'custom', created: now, lastUsed: now,
+    name: 'Attention (Fabric ' + MC + ')', type: 'custom', created: now, lastUsed: now,
     icon: 'Grass', lastVersionId: PROFILE_ID,
   };
   fs.writeFileSync(lp, JSON.stringify(data, null, 2));
@@ -69,7 +69,7 @@ async function enable() {
     progress('Instaluję GhostVisual…', 85);
     for (const f of list(modsDir())) if (/^ghostvisual.*\.jar$/i.test(f)) fs.unlinkSync(path.join(modsDir(), f));
     fs.copyFileSync(resPath('ghostvisual.jar'), path.join(modsDir(), 'ghostvisual.jar'));
-    progress('Gotowe! Uruchom Minecraft i wybierz profil „GhostVisual (Fabric ' + MC + ')”.', 100, 'ok');
+    progress('Gotowe! Uruchom Minecraft i wybierz profil „Attention (Fabric ' + MC + ')”.', 100, 'ok');
     return { ok: true, status: status() };
   } catch (e) {
     progress('Błąd: ' + e.message, 0, 'err');
@@ -87,7 +87,7 @@ async function disable() {
 app.whenReady().then(() => {
   win = new BrowserWindow({
     width: 820, height: 580, frame: false, transparent: true, resizable: false, hasShadow: false,
-    backgroundColor: '#00000000', title: 'GhostVisual', show: false,
+    backgroundColor: '#00000000', title: 'Attention', show: false,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true },
   });
   win.setMenu(null);

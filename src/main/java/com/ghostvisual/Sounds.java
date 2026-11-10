@@ -10,8 +10,8 @@ public final class Sounds {
 	private Sounds() {
 	}
 
-	public static final String[] HIT = {"Wyłączony", "Pop", "Cięcie", "Dzwonek"};
-	public static final String[] KILL = {"Wyłączony", "Katana (anime)", "Iskry (anime)", "Bas", "Digi digi hey", "Skibidi", "Fart"};
+	public static final String[] HIT = {"Wyłączony", "Anime ohh!", "Bonk", "Boing", "Piszczałka"};
+	public static final String[] KILL = {"Wyłączony", "Digi digi hey", "Skibidi", "Fart", "Klakson", "Smutna trąbka", "Vine boom"};
 
 	public static void play(String kind, int idx, float pitch) {
 		Config cfg = Config.get();

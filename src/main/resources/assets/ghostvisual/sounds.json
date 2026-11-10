@@ -14,6 +14,11 @@
    "ghostvisual:hit_3"
   ]
  },
+ "hit_4": {
+  "sounds": [
+   "ghostvisual:hit_4"
+  ]
+ },
  "kill_1": {
   "sounds": [
    "ghostvisual:kill_1"
