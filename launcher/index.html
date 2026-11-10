@@ -41,7 +41,7 @@ html,body{width:100%;height:100%;background:transparent;font-family:var(--font);
 .ib.x:hover{background:rgba(255,80,110,.85);border-color:transparent}
 .ib svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-.center{position:absolute;left:0;right:0;top:62px;display:flex;flex-direction:column;align-items:center}
+.center{position:absolute;left:0;right:0;top:52px;display:flex;flex-direction:column;align-items:center}
 .avatar{position:relative;width:128px;height:128px;border-radius:50%;padding:3px;background:conic-gradient(from 0deg,#ffffff,#6f747d,#e9ebee,#3d4046,#ffffff);animation:spin 8s linear infinite}
 .avatar::after{content:"";position:absolute;inset:-14px;border-radius:50%;background:conic-gradient(from 0deg,#ffffff,#6f747d,#e9ebee,#3d4046,#ffffff);filter:blur(26px);opacity:.3;z-index:-1}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -55,7 +55,11 @@ h1{margin-top:18px;font-size:34px;font-weight:700;letter-spacing:-.02em;backgrou
 .pill.on{color:var(--text)}
 .pill.on .dot{background:#fff;box-shadow:0 0 10px #fff}
 
-.actions{margin-top:22px;display:flex;flex-direction:column;align-items:center;gap:10px;-webkit-app-region:no-drag}
+.sel{margin-top:14px;display:flex;gap:8px;-webkit-app-region:no-drag}
+select{appearance:none;-webkit-appearance:none;font:600 12.5px var(--font);color:var(--text);background:rgba(255,255,255,.07) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat right 12px center;border:1px solid rgba(255,255,255,.16);border-radius:12px;height:38px;padding:0 34px 0 14px;cursor:pointer;outline:none;transition:.2s;max-width:330px;min-width:240px}
+select:hover{background-color:rgba(255,255,255,.13)}
+select option{background:#111;color:#fff}
+.actions{margin-top:14px;display:flex;flex-direction:column;align-items:center;gap:10px;-webkit-app-region:no-drag}
 .btn{position:relative;cursor:pointer;border:0;font-family:inherit;font-weight:700;letter-spacing:.06em;color:#fff;transition:transform .18s,box-shadow .25s,filter .25s,background .25s;overflow:hidden}
 .btn:active{transform:scale(.97)!important}
 .enable{width:340px;height:56px;border-radius:18px;font-size:16px;color:#0a0a0b;
@@ -104,6 +108,7 @@ h1{margin-top:18px;font-size:34px;font-weight:700;letter-spacing:-.02em;backgrou
       <div class="pill" id="p-api"><span class="dot"></span>Fabric API</div>
       <div class="pill" id="p-mod"><span class="dot"></span>Attention</div>
     </div>
+    <div class="sel"><select id="grp" title="Launcher"></select><select id="inst" title="Instancja" style="display:none"></select></div>
     <div class="actions">
       <button class="btn enable" id="enable">ENABLE</button>
       <button class="btn disable" id="disable">DISABLE</button>
@@ -124,6 +129,7 @@ h1{margin-top:18px;font-size:34px;font-weight:700;letter-spacing:-.02em;backgrou
 const $ = (id) => document.getElementById(id);
 const msg = $('msg'), bar = $('bar');
 function paint(s){
+  $('p-fabric').style.display = s.fabric === null ? 'none' : '';
   $('p-fabric').classList.toggle('on', !!s.fabric);
   $('p-api').classList.toggle('on', !!s.api);
   $('p-mod').classList.toggle('on', !!s.mod);
@@ -146,7 +152,34 @@ $('disable').onclick = () => act(api.disable);
 $('discord').onclick = () => api.discord();
 $('exit').onclick = () => api.exit();
 $('min').onclick = () => api.minimize();
-api.status().then(paint);
+let groups = [];
+async function chooseGroup(){
+  const g = groups[$('grp').selectedIndex];
+  const inst = $('inst');
+  if (g.id === 'custom') {
+    inst.style.display = 'none';
+    const p = await api.pick();
+    if (!p) return;
+    paint(await api.select({ group: 'custom', mods: p, vanilla: false }));
+    say('Folder: ' + p, '');
+    return;
+  }
+  inst.innerHTML = g.items.map((i, k) => '<option value="' + k + '">' + i.name.replace(/</g, '') + '</option>').join('');
+  inst.style.display = g.items.length > 1 ? '' : 'none';
+  await chooseInst();
+}
+async function chooseInst(){
+  const g = groups[$('grp').selectedIndex];
+  const it = g.items[$('inst').selectedIndex] || g.items[0];
+  if (it) paint(await api.select({ group: g.id, mods: it.mods, vanilla: !!it.vanilla }));
+}
+$('grp').onchange = chooseGroup;
+$('inst').onchange = chooseInst;
+(async () => {
+  groups = await api.targets();
+  $('grp').innerHTML = groups.map((g) => '<option>' + g.label + '</option>').join('');
+  await chooseGroup();
+})();
 </script>
 </body>
 </html>
