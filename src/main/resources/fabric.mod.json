@@ -1,21 +1,13 @@
 {
 	"schemaVersion": 1,
-	"id": "ghostvisual",
+	"id": "webswap",
 	"version": "${version}",
-	"name": "Attention",
-	"description": "Efekty wizualne celu, pety, China Hat i panel muzyki. Made by shvga.",
+	"name": "WebSwap",
+	"description": "Szybka pajęczyna: dźwignia/przycisk + klik w pajęczynę = woda niszczy pajęczynę, zbiera wodę i stawia dźwignię z powrotem. Made by shvga.",
 	"authors": ["shvga"],
 	"license": "MIT",
-	"icon": "assets/ghostvisual/textures/gui/logo.png",
+	"icon": "icon.png",
 	"environment": "client",
-	"mixins": ["ghostvisual.mixins.json"],
-	"entrypoints": {
-		"client": ["com.ghostvisual.GhostVisualClient"]
-	},
-	"depends": {
-		"fabricloader": ">=0.16.10",
-		"minecraft": "~1.21.4",
-		"java": ">=21",
-		"fabric-api": "*"
-	}
+	"entrypoints": { "client": ["com.webswap.WebSwapClient"] },
+	"depends": { "fabricloader": ">=0.16.10", "minecraft": "~1.21.4", "java": ">=21", "fabric-api": "*" }
 }
