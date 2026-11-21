@@ -18,27 +18,5 @@ jobs:
       - run: gradle build --no-daemon
       - uses: actions/upload-artifact@v4
         with:
-          name: GhostVisual
+          name: WebSwap
           path: build/libs/*.jar
-  launcher:
-    needs: build
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: GhostVisual
-          path: modjar
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - shell: bash
-        run: |
-          cp "$(ls modjar/ghostvisual-*.jar | grep -v -e sources -e dev | head -n 1)" launcher/resources/ghostvisual.jar
-          cd launcher
-          npm install
-          npm run dist
-      - uses: actions/upload-artifact@v4
-        with:
-          name: GhostVisualLauncher
-          path: launcher/dist/GhostVisualLauncher.exe
